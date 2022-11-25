@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"time"
 )
 
 // Writes an error message and stack trace to the errorLog, then send a generic
@@ -30,6 +31,14 @@ func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
+// Create an newTemplateData() which returns a pointer to templateData struct
+// initialized with the current year.
+func (app *application) newTemplateData(r *http.Request) *templateData {
+	return &templateData{
+		CurrentYear: time.Now().Year(),
+	}
+}
+
 // Renders a page if not render before add to templateCache.
 func (app *application) render(w http.ResponseWriter, status int, page string, data *templateData) {
 	ts, ok := app.templateCache[page]
@@ -39,15 +48,15 @@ func (app *application) render(w http.ResponseWriter, status int, page string, d
 		return
 	}
 
-  buf := new(bytes.Buffer)
+	buf := new(bytes.Buffer)
 
-  err :=  ts.ExecuteTemplate(buf, "base", data)
-  if err != nil {
-    app.serverError(w, err)
-    return
-  }
+	err := ts.ExecuteTemplate(buf, "base", data)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 
 	w.WriteHeader(status)
 
-  buf.WriteTo(w)
+	buf.WriteTo(w)
 }
