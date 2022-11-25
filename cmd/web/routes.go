@@ -2,7 +2,8 @@ package main
 
 import "net/http"
 
-func (app *application) routes() *http.ServeMux {
+// Generaetes the routes handler for the web application.
+func (app *application) routes() http.Handler {
 
 	mux := http.NewServeMux()
 
@@ -13,5 +14,5 @@ func (app *application) routes() *http.ServeMux {
 	mux.HandleFunc("/snippet/view", app.snippetView)
 	mux.HandleFunc("/snippet/create", app.snippetCreate)
 
-	return mux
+	return secureHeaders(mux)
 }
