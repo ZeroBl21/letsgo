@@ -13,10 +13,10 @@ import (
 
 // Represents the form data and validation errors for the form fields.
 type snippetCreateForm struct {
-	Title   string
-	Content string
-	Expires int
-	validator.Validator
+	Title               string `form:"title"`
+	Content             string `form:"content"`
+	Expires             int    `form:"expires"`
+	validator.Validator `form:"-"`
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -74,16 +74,12 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
+	var form snippetCreateForm
+
+	err = app.decodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
-	}
-
-	form := snippetCreateForm{
-		Title:   r.PostForm.Get("title"),
-		Content: r.PostForm.Get("content"),
-		Expires: expires,
 	}
 
 	// Check Title
@@ -96,7 +92,7 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	// Check Expire
 	form.CheckField(validator.PermittedInt(form.Expires), "expires", "This field must equal 1, 7 or 365")
 
-  // Check if the form is valid
+	// Check if the form is valid
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
