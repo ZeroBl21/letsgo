@@ -57,7 +57,7 @@ func main() {
 		snippets:       &models.SnippetModel{DB: db},
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
-		sessionManager: SessionManager,
+		sessionManager: sessionManager,
 	}
 
 	srv := &http.Server{
