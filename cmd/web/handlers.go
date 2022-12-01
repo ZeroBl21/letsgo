@@ -11,6 +11,13 @@ import (
 	"github.com/zerobl21/letsgo/internal/validator"
 )
 
+type userSignupForm struct {
+	Name                string `form:"name"`
+	Email               string `form:"email"`
+	Password            string `form:"password"`
+	validator.Validator `form:"-"`
+}
+
 // Represents the form data and validation errors for the form fields.
 type snippetCreateForm struct {
 	Title               string `form:"title"`
@@ -110,9 +117,12 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
 
+/// Displays the signup page
 func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
-	// TODO
-	fmt.Fprintln(w, "Display a HTML form for signing up a new user...")
+	data := app.newTemplateData(r)
+	data.Form = userSignupForm{}
+
+	app.render(w, http.StatusOK, "signup.tmpl", data)
 }
 
 func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
