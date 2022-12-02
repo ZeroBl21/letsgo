@@ -23,7 +23,7 @@ func (app *application) routes() http.Handler {
 	)
 
   // Unprotected Routes
-	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf)
+	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 
   // Protected Routes
 	protected := dynamic.Append(app.requireAuthentication)

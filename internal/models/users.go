@@ -67,19 +67,24 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 	}
 
 	err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
-  if err != nil {
-    if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-      return 0, ErrInvalidCredentials
-    } else {
-      return 0, err
-    }
-  }
+	if err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return 0, ErrInvalidCredentials
+		} else {
+			return 0, err
+		}
+	}
 
 	return 0, nil
 }
 
-// Check if the user exists with a specific ID
+// Returns true if a user with a specific ID exists in our users table,
+// and false otherwise.
 func (m *UserModel) Exists(id int) (bool, error) {
-	// TODO
-	return false, nil
+	var exists bool
+
+	stmt := "SELECT EXISTS(SELECT true FROM users WHERE id = ?)"
+
+	err := m.DB.QueryRow(stmt, id).Scan(&exists)
+	return exists, err
 }
