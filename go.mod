@@ -6,6 +6,7 @@ require github.com/go-sql-driver/mysql v1.6.0
 
 require (
 	github.com/alexedwards/scs/mysqlstore v0.0.0-20220528130143-d93ace5be94b // indirect
+	github.com/justinas/nosurf v1.1.1 // indirect
 	golang.org/x/crypto v0.3.0 // indirect
 )
 
