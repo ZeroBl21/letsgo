@@ -75,7 +75,7 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 		}
 	}
 
-	return 0, nil
+	return id, nil
 }
 
 // Returns true if a user with a specific ID exists in our users table,
