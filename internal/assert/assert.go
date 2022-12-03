@@ -22,3 +22,12 @@ func StringContains(t *testing.T, actual, expectedSubstring string) {
 		t.Errorf("got: %q; expected to contain: %q", actual, expectedSubstring)
 	}
 }
+
+// Checks if the actual error is not nil.
+func NilError(t *testing.T, actual error) {
+	t.Helper()
+
+	if actual != nil {
+		t.Errorf("got: %v; expected: nil", actual)
+	}
+}
