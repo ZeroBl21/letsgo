@@ -137,7 +137,7 @@ func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
 	app.render(w, http.StatusOK, "signup.tmpl", data)
 }
 
-// Signup the user if the post request is valid. 
+// Signup the user if the post request is valid.
 func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 	var form userSignupForm
 
@@ -258,4 +258,10 @@ func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 	app.sessionManager.Put(r.Context(), "flash", "You've been logged out successful!")
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// Returns a 200 OK status code and "OK" response body, for status-checking
+// or uptime monitoring the server
+func ping(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("OK"))
 }
