@@ -24,6 +24,8 @@ func (app *application) routes() http.Handler {
 		fileServer,
 	)
 
+	router.HandlerFunc(http.MethodGet, "/ping", ping)
+
 	// Unprotected Routes
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 
