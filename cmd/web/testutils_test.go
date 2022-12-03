@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httptest"
 	"testing"
 )
@@ -26,6 +27,18 @@ type testServer struct {
 // Initialzes and returns a new instance of custom testServer type.
 func newTestServer(t *testing.T, h http.Handler) *testServer {
 	ts := httptest.NewTLSServer(h)
+
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ts.Client().Jar = jar
+
+	ts.Client().CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	}
+
 	return &testServer{ts}
 }
 
