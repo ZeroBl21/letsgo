@@ -260,6 +260,13 @@ func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+// Displays the indicated about page.
+func (app *application) aboutView(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+
+	app.render(w, http.StatusOK, "about.tmpl", data)
+}
+
 // Returns a 200 OK status code and "OK" response body, for status-checking
 // or uptime monitoring the server
 func ping(w http.ResponseWriter, r *http.Request) {
