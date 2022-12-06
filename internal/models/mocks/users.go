@@ -32,6 +32,18 @@ func (m *UserModel) Get(id int) (*models.User, error) {
 	return nil, models.ErrNoRecord
 }
 
+func (m *UserModel) PasswordUpdate(id int, currentPassword, newPassword string) error {
+	if id == 1 {
+		if currentPassword != "ps$$word" {
+			return models.ErrInvalidCredentials
+		}
+
+		return nil
+	}
+
+	return models.ErrNoRecord
+}
+
 func (m *UserModel) Authenticate(email, password string) (int, error) {
 	if email == "alice@example.com" && password == "pa$$word" {
 		return 1, nil

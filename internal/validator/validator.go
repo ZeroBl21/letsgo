@@ -59,6 +59,10 @@ func MaxChars(value string, n int) bool {
 	return utf8.RuneCountInString(value) <= n
 }
 
+func Equal[T comparable](got, want T) bool {
+  return got == want
+}
+
 // Returns true if a value of type T equals one of the variatic permittedValues
 func PermittedValue[T comparable](value T, permittedValues ...T) bool {
 	for i := range permittedValues {

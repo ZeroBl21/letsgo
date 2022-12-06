@@ -34,6 +34,13 @@ type snippetCreateForm struct {
 	validator.Validator `form:"-"`
 }
 
+type accountUpdatePasswordForm struct {
+	CurrentPassword         string `form:"currentPassword"`
+	NewPassword             string `form:"newPassword"`
+	NewPasswordConfirmation string `form:"NewPasswordConfirmation"`
+	validator.Validator     `form:"-"`
+}
+
 // Displays the home page with the 10 most recents snippets.
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	snippets, err := app.snippets.Latest()
@@ -243,10 +250,10 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 
 	app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
 
-  path := app.sessionManager.GetString(r.Context(), "redirectPathAfterLogin")
+	path := app.sessionManager.GetString(r.Context(), "redirectPathAfterLogin")
 	if path != "" {
 		http.Redirect(w, r, path, http.StatusSeeOther)
-    return
+		return
 	}
 
 	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
@@ -291,6 +298,67 @@ func (app *application) accountView(w http.ResponseWriter, r *http.Request) {
 	data.User = user
 
 	app.render(w, http.StatusOK, "account.tmpl", data)
+}
+
+// Display the page to update the user password
+func (app *application) accountPasswordUpdate(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	data.Form = accountUpdatePasswordForm{}
+
+	app.render(w, http.StatusOK, "password.tmpl", data)
+}
+
+// Updates the password to the database if is valid
+func (app *application) accountPasswordUpdatePost(w http.ResponseWriter, r *http.Request) {
+	var form accountUpdatePasswordForm
+
+	err := app.decodePostForm(r, &form)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	// Current Password validation
+	form.CheckField(validator.NotBlank(form.CurrentPassword), "current", "This field cannot be blank")
+
+	// Email validation
+	form.CheckField(validator.NotBlank(form.NewPassword), "new", "This field cannot be blank")
+	form.CheckField(validator.MinChars(form.NewPassword, 8), "new", "This field must be a valid email address")
+
+	// Password validation
+	form.CheckField(validator.NotBlank(form.NewPasswordConfirmation), "confirmation", "This field cannot be blank")
+	form.CheckField(validator.MinChars(form.NewPasswordConfirmation, 8), "confirmation", "This field must be at least 8 characters long")
+	form.CheckField(validator.Equal(form.NewPasswordConfirmation, form.NewPassword), "confirmation", "Password do not match")
+
+	if !form.Valid() {
+		data := app.newTemplateData(r)
+		data.Form = form
+
+		app.render(w, http.StatusUnprocessableEntity, "password.tmpl", data)
+		return
+	}
+
+	userID := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
+
+	err = app.users.PasswordUpdate(userID, form.CurrentPassword, form.NewPassword)
+	if err != nil {
+		if errors.Is(err, models.ErrInvalidCredentials) {
+			form.AddFieldError("current", "Current password is incorrect")
+
+			data := app.newTemplateData(r)
+			data.Form = form
+
+			app.render(w, http.StatusUnprocessableEntity, "password.tmpl", data)
+		} else {
+			app.serverError(w, err)
+		}
+
+		return
+	}
+
+	app.sessionManager.Put(r.Context(), "flash", "Your password has been updated!")
+
+	http.Redirect(w, r, "/account/view", http.StatusSeeOther)
 }
 
 // Returns a 200 OK status code and "OK" response body, for status-checking
