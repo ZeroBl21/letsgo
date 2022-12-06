@@ -12,6 +12,7 @@ import (
 
 type UserModelInterface interface {
 	Insert(name, email, password string) error
+	Get(id int) (*User, error)
 	Authenticate(email, password string) (int, error)
 	Exists(id int) (bool, error)
 }
@@ -53,6 +54,26 @@ func (m *UserModel) Insert(name, email, password string) error {
 	}
 
 	return nil
+}
+
+// Returns a user with the specified ID or nil if the user
+// is not found or not exists
+func (m *UserModel) Get(id int) (*User, error) {
+	u := &User{}
+
+	stmt := `SELECT id, name, email, created FROM users
+  WHERE id = ?`
+
+	err := m.DB.QueryRow(stmt, id).Scan(&u.ID, &u.Name, &u.Email, &u.Created)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNoRecord
+		}
+
+		return nil, err
+	}
+
+	return u, nil
 }
 
 // Verify whether a user exists with the provided email address and password
