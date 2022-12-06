@@ -38,6 +38,9 @@ func (app *application) routes() http.Handler {
 	// About
 	router.Handler(http.MethodGet, "/about", dynamic.ThenFunc(app.aboutView))
 
+	// Account
+	router.Handler(http.MethodGet, "/account/view", protected.ThenFunc(app.accountView))
+
 	// Snippets
 	router.Handler(http.MethodGet, "/snippet/view/:id", dynamic.ThenFunc(app.snippetView))
 
